@@ -67,4 +67,4 @@ jobs:
           app-name: 'AvanzarBackend'
           slot-name: 'Production'
           package: .
-          
+          publish-profile: ${{ secrets.AVANZAR_PUBLISH_PROFILE }}
