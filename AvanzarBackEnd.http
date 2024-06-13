@@ -1,4 +1,4 @@
-@AvanzarBackEnd_HostAddress = http://localhost:5098
+@AvanzarBackEnd_HostAddress = https://avanzarbackend.azurewebsites.net/
 
 
 
