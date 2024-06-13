@@ -1,6 +1,5 @@
 @AvanzarBackEnd_HostAddress = http://localhost:5098
 
-GET {{AvanzarBackEnd_HostAddress}}/weatherforecast/
-Accept: application/json
 
-###
+
+#
