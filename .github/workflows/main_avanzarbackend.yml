@@ -30,7 +30,7 @@ jobs:
       - name: dotnet publish
         run: |
           cd D:\a\AvanzarBackend\AvanzarBackend
-          dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+          dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp --project AvanzarBackend.csproj
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
