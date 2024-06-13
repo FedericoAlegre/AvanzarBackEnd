@@ -24,8 +24,9 @@ builder.Services.AddCors(options =>
 });
 
 //Auth
-builder.Configuration.AddEnvironmentVariables();
 builder.Configuration.AddJsonFile("appsettings.json");
+builder.Configuration.AddEnvironmentVariables();
+
 var secretKey = builder.Configuration.GetSection("settings").GetSection("secretKey").ToString()!;
 var keyBytes = Encoding.UTF8.GetBytes(secretKey);
 
@@ -64,7 +65,8 @@ builder.Services.AddControllers().AddJsonOptions(opt =>
     opt.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 // Configurar SendGrid manualmente
-builder.Services.AddSingleton<ISendGridClient>(new SendGridClient(builder.Configuration["SendGridApiKey"]));
+string sengrid = builder.Configuration.GetSection("SendGrid").GetSection("ApiKey").ToString()!;
+if(sengrid != null) builder.Services.AddSingleton<ISendGridClient>(new SendGridClient(sengrid));
 builder.Services.AddScoped<EmailService>();
 
 var app = builder.Build();

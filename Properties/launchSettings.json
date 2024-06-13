@@ -17,7 +17,7 @@
       "applicationUrl": "http://localhost:5098",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "SendGridApiKey": "sendgrid"
+        "sendgrid": "sendgrid"
       }
     },
     "https": {
@@ -28,7 +28,7 @@
       "applicationUrl": "https://localhost:7148;http://localhost:5098",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "SendGridApiKey": "sendgrid"
+        "sendgrid": "sendgrid"
       }
     },
     "IIS Express": {
@@ -37,7 +37,7 @@
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "SendGridApiKey": "sendgrid"
+        "sendgrid": "sendgrid"
       }
     }
   }
