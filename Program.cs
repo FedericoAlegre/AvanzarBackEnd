@@ -11,9 +11,24 @@ using System.Diagnostics;
 using Amazon.S3;
 using Amazon.Runtime;
 using Microsoft.Extensions.DependencyInjection;
+using Amazon.Extensions.NETCore.Setup;
+using Amazon;
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configurar logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
+// Crear un logger factory
+var loggerFactory = LoggerFactory.Create(loggingBuilder =>
+{
+    loggingBuilder.ClearProviders();
+    loggingBuilder.AddConsole();
+});
+var logger = loggerFactory.CreateLogger<Program>();
+
 
 builder.Services.AddCors(options =>
 {
@@ -68,26 +83,40 @@ builder.Services.AddControllers().AddJsonOptions(opt =>
 });
 
 // Leer las credenciales de AWS desde la configuración
-var awsOptions = builder.Configuration.GetAWSOptions();
+
 var accessKey = Environment.GetEnvironmentVariable("AWSAccessKey");
 var secretKeyAWS = Environment.GetEnvironmentVariable("AWSSecretKey");
-var region = builder.Configuration["AWS:Region"];
 
-// Configurar las credenciales de AWS manualmente
-var awsCredentials = new BasicAWSCredentials(accessKey, secretKeyAWS);
-var s3ClientConfig = new AmazonS3Config
+if (string.IsNullOrEmpty(accessKey) || string.IsNullOrEmpty(secretKeyAWS))
 {
-    RegionEndpoint = Amazon.RegionEndpoint.GetBySystemName(region)
+    logger.LogError("AWS Access Key or Secret Key is missing");
+}
+else
+{
+    logger.LogInformation("AWS Access Key and Secret Key loaded successfully");
+}
+
+var awsOptions = new AWSOptions
+{
+    Credentials = new BasicAWSCredentials(accessKey, secretKeyAWS),
+    Region = RegionEndpoint.GetBySystemName(builder.Configuration["AWS:Region"])
 };
 
-// Añadir el cliente S3 con las credenciales configuradas manualmente
-builder.Services.AddSingleton<IAmazonS3>(sp => new AmazonS3Client(awsCredentials, s3ClientConfig));
+builder.Services.AddAWSService<IAmazonS3>(awsOptions);
 
 
 // Configurar SendGrid manualmente
-var sengrid = Environment.GetEnvironmentVariable("sendgrid");
+var sendgrid = Environment.GetEnvironmentVariable("sendgrid");
+if (sendgrid.IsNullOrEmpty())
+{
+    logger.LogError("SendGrid API Key is missing");
+}
+else
+{
+    logger.LogInformation("SendGrid API Key loaded successfully");
+}
 
-if(sengrid != null) builder.Services.AddSingleton<ISendGridClient>(new SendGridClient(sengrid));
+if (sendgrid != null) builder.Services.AddSingleton<ISendGridClient>(new SendGridClient(sendgrid));
 builder.Services.AddScoped<EmailService>();
 
 var app = builder.Build();

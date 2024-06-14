@@ -16,12 +16,13 @@ namespace AvanzarBackEnd.Controllers
     [Route("api/[controller]")]
     [Authorize]
     [ApiController]
-    public class ProductController(AppDbContext appDbContext, IConfiguration configuration, EmailService emailService, IAmazonS3 s3Client) : ControllerBase
+    public class ProductController(AppDbContext appDbContext, IConfiguration configuration, EmailService emailService, IAmazonS3 s3Client, ILogger<ProductController> logger) : ControllerBase
     {
         public AppDbContext AppDbContext { get; set; } = appDbContext;
         private readonly IAmazonS3 _s3Client = s3Client;
         private readonly string _bucketName = configuration["AWS:BucketName"]!;
         private readonly EmailService _emailService = emailService;
+        private readonly ILogger<ProductController> _logger =  logger;
 
         [HttpGet]
         [AllowAnonymous]
@@ -147,15 +148,17 @@ namespace AvanzarBackEnd.Controllers
 
                 //var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
                 var dataUrl = await UploadFileToS3(file, file.FileName);
-               // var imageName = Guid.NewGuid() + Path.GetExtension(image.FileName);
+                // var imageName = Guid.NewGuid() + Path.GetExtension(image.FileName);
                 //var imageUrl = await UploadFileToS3(file, fileName);
 
 
+                _logger.LogInformation($"UploadFile endpoint ok: {dataUrl}");
 
                 return Ok(new { dataUrl = dataUrl/*, imageUrl = imageUrl */});
             }
             catch (Exception ex)
             {
+                _logger.LogInformation($"UploadFile endpoint failed: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
             }
         }
@@ -176,7 +179,7 @@ namespace AvanzarBackEnd.Controllers
                 var fileTransferUtility = new TransferUtility(_s3Client);                
                 await fileTransferUtility.UploadAsync(uploadRequest);
 
-                return $"https://{_bucketName}.s3.amazonaws.com/{fileName}";
+                return fileName;
             }
         }
 
@@ -198,10 +201,13 @@ namespace AvanzarBackEnd.Controllers
                 var message = "Attached is your purchased file.";
                 var mimeType = GetMimeType(dbProduct.DataUrl!);
                 await _emailService.SendEmailAsync(email, "Your Purchased File", message, fileData, dbProduct.DataUrl, mimeType);
+                _logger.LogInformation($"purchase endpoint ok: {message}");
 
                 return Ok(new { message = "Email sent successfully" });
             }
             catch (Exception ex) {
+
+                _logger.LogInformation($"purchase endpoint failed: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
             }
         }
