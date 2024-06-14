@@ -9,15 +9,17 @@ using Microsoft.EntityFrameworkCore;
 using AvanzarBackEnd.Services;
 using SendGrid.Helpers.Mail;
 using System.Collections.Generic;
+using Amazon.S3.Model;
 
 namespace AvanzarBackEnd.Controllers
 {
     [Route("api/[controller]")]
     [Authorize]
     [ApiController]
-    public class ProductController(AppDbContext appDbContext, IConfiguration configuration, EmailService emailService) : ControllerBase
+    public class ProductController(AppDbContext appDbContext, IConfiguration configuration, EmailService emailService, IAmazonS3 s3Client) : ControllerBase
     {
         public AppDbContext AppDbContext { get; set; } = appDbContext;
+        private readonly IAmazonS3 _s3Client = s3Client;
         private readonly string _bucketName = configuration["AWS:BucketName"]!;
         private readonly EmailService _emailService = emailService;
 
@@ -48,6 +50,7 @@ namespace AvanzarBackEnd.Controllers
 
         [HttpGet]
         [Route("{id:int}")]
+        [AllowAnonymous]
         public async Task<ActionResult> GetProductById(int id, bool isAdmin)
         {
             Product? dbProduct = new Product();
@@ -122,6 +125,112 @@ namespace AvanzarBackEnd.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Uploads a file and an image.
+        /// </summary>
+        /// <param name="file">The file to upload.</param>
+        /// <param name="image">The image to upload.</param>
+        /// <returns>The URLs of the uploaded file and image.</returns>
+        [HttpPost("upload-file")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UploadFile([FromForm] IFormFile file/*, [FromForm] IFormFile image*/)
+        {
+            try
+            {
+                if (file == null || file.Length == 0 /*|| image == null || image.Length == 0*/)
+                    return BadRequest("File not selected");
+
+                //var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
+                var dataUrl = await UploadFileToS3(file, file.FileName);
+               // var imageName = Guid.NewGuid() + Path.GetExtension(image.FileName);
+                //var imageUrl = await UploadFileToS3(file, fileName);
+
+
+
+                return Ok(new { dataUrl = dataUrl/*, imageUrl = imageUrl */});
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
+            }
+        }
+
+        private async Task<string> UploadFileToS3(IFormFile file, string fileName)
+        {
+            using (var newMemoryStream = new MemoryStream())
+            {
+                file.CopyTo(newMemoryStream);
+
+                var uploadRequest = new TransferUtilityUploadRequest
+                {
+                    InputStream = newMemoryStream,
+                    Key = fileName,
+                    BucketName = _bucketName,
+                };
+
+                var fileTransferUtility = new TransferUtility(_s3Client);                
+                await fileTransferUtility.UploadAsync(uploadRequest);
+
+                return $"https://{_bucketName}.s3.amazonaws.com/{fileName}";
+            }
+        }
+
+
+        [HttpPost("purchase/{id}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> PurchaseFile(int id, [FromForm] string email)
+        {
+            try
+            {
+                var dbProduct = await this.AppDbContext.Products.FindAsync(id);
+                if (dbProduct == null)
+                    return NotFound();
+
+                var fileData = await DownloadFileFromS3(dbProduct.DataUrl!);
+                if (fileData == null)
+                    return NotFound("File not found in S3");
+
+                var message = "Attached is your purchased file.";
+                var mimeType = GetMimeType(dbProduct.DataUrl!);
+                await _emailService.SendEmailAsync(email, "Your Purchased File", message, fileData, dbProduct.DataUrl, mimeType);
+
+                return Ok(new { message = "Email sent successfully" });
+            }
+            catch (Exception ex) {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
+            }
+        }
+
+        private async Task<byte[]> DownloadFileFromS3(string fileName)
+        {
+            var request = new GetObjectRequest
+            {
+                BucketName = _bucketName,
+                Key = fileName
+            };
+
+            using (var response = await _s3Client.GetObjectAsync(request))
+            using (var memoryStream = new MemoryStream())
+            {
+                await response.ResponseStream.CopyToAsync(memoryStream);
+                return memoryStream.ToArray();
+            }
+        }
+
+        private string GetMimeType(string fileName)
+        {
+            var extension = Path.GetExtension(fileName).ToLowerInvariant();
+            switch (extension)
+            {
+                case ".pdf": return "application/pdf";
+                case ".mp4": return "video/mp4";
+                // Agregar más tipos MIME según sea necesario
+                default: return "application/octet-stream";
             }
         }
 
