@@ -18,8 +18,8 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "sendgrid": "sendgrid",
-        "aws_secret_access_key": "aws_secret_access_key",
-        "aws_access_key_id": "aws_access_key_id"
+        "AWSSecretKey": "AWSSecretKey",
+        "AWSAccessKey": "AWSAccessKey"
       }
     },
     "https": {
@@ -31,8 +31,8 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "sendgrid": "sendgrid",
-        "aws_secret_access_key": "aws_secret_access_key",
-        "aws_access_key_id": "aws_access_key_id"
+        "AWSSecretKey": "AWSSecretKey",
+        "AWSAccessKey": "AWSAccessKey"
       }
     },
     "IIS Express": {
@@ -42,8 +42,8 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "sendgrid": "sendgrid",
-        "aws_secret_access_key": "aws_secret_access_key",
-        "aws_access_key_id": "aws_access_key_id"
+        "AWSSecretKey": "AWSSecretKey",
+        "AWSAccessKey": "AWSAccessKey"
       }
     }
   }
