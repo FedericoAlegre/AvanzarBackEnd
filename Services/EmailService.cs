@@ -11,21 +11,33 @@ namespace AvanzarBackEnd.Services
         public EmailService(ISendGridClient sendGridClient, IConfiguration configuration)
         {
             _sendGridClient = sendGridClient;
-            _senderEmail = configuration["SendGrid:SenderEmail"];
+            _senderEmail = configuration["SendGrid:SenderEmail"]!;
         }
 
-        public async Task SendEmailAsync(string toEmail, string subject, string message)
+        public async Task SendEmailAsync(string toEmail, string subject, string message, byte[]? attachment = null, string? attachmentName = null, string? mimeType = null)
         {
-            var msg = new SendGridMessage
+            try
             {
-                From = new EmailAddress(_senderEmail),
-                Subject = subject,
-                PlainTextContent = message,
-                HtmlContent = message
-            };
-            msg.AddTo(new EmailAddress(toEmail));
+                var msg = new SendGridMessage
+                {
+                    From = new EmailAddress(_senderEmail),
+                    Subject = subject,
+                    PlainTextContent = message,
+                    HtmlContent = message
+                };
+                msg.AddTo(new EmailAddress(toEmail));
 
-            await _sendGridClient.SendEmailAsync(msg);
+                if (attachment != null && attachmentName != null && mimeType != null)
+                {
+                    msg.AddAttachment(attachmentName, Convert.ToBase64String(attachment), mimeType);
+                }
+
+                await _sendGridClient.SendEmailAsync(msg);
+            }
+            catch (Exception ex) {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }
+

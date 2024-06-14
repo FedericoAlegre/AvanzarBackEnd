@@ -8,6 +8,9 @@ using System.Text.Json;
 using SendGrid;
 using AvanzarBackEnd.Services;
 using System.Diagnostics;
+using Amazon.S3;
+using Amazon.Runtime;
+using Microsoft.Extensions.DependencyInjection;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,7 +29,6 @@ builder.Services.AddCors(options =>
 //Auth
 builder.Configuration.AddJsonFile("appsettings.json");
 builder.Configuration.AddEnvironmentVariables();
-
 var secretKey = builder.Configuration.GetSection("settings").GetSection("secretKey").ToString()!;
 var keyBytes = Encoding.UTF8.GetBytes(secretKey);
 
@@ -64,8 +66,27 @@ builder.Services.AddControllers().AddJsonOptions(opt =>
     opt.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     opt.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
+
+// Leer las credenciales de AWS desde la configuración
+var awsOptions = builder.Configuration.GetAWSOptions();
+var accessKey = Environment.GetEnvironmentVariable("AWSAccessKey");
+var secretKeyAWS = Environment.GetEnvironmentVariable("AWSSecretKey");
+var region = builder.Configuration["AWS:Region"];
+
+// Configurar las credenciales de AWS manualmente
+var awsCredentials = new BasicAWSCredentials(accessKey, secretKeyAWS);
+var s3ClientConfig = new AmazonS3Config
+{
+    RegionEndpoint = Amazon.RegionEndpoint.GetBySystemName(region)
+};
+
+// Añadir el cliente S3 con las credenciales configuradas manualmente
+builder.Services.AddSingleton<IAmazonS3>(sp => new AmazonS3Client(awsCredentials, s3ClientConfig));
+
+
 // Configurar SendGrid manualmente
-string sengrid = builder.Configuration.GetSection("SendGrid").GetSection("ApiKey").ToString()!;
+var sengrid = Environment.GetEnvironmentVariable("sendgrid");
+
 if(sengrid != null) builder.Services.AddSingleton<ISendGridClient>(new SendGridClient(sengrid));
 builder.Services.AddScoped<EmailService>();
 
@@ -77,6 +98,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.MapGet("/", async context =>
+{
+    var s3Client = context.RequestServices.GetRequiredService<IAmazonS3>();
+    var buckets = await s3Client.ListBucketsAsync();
+    await context.Response.WriteAsJsonAsync(buckets.Buckets);
+});
 
 app.UseCors("AllowAllOrigins");
 app.UseHttpsRedirection();

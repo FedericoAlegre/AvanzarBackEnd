@@ -17,7 +17,9 @@
       "applicationUrl": "http://localhost:5098",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "sendgrid": "sendgrid"
+        "sendgrid": "sendgrid",
+        "aws_secret_access_key": "aws_secret_access_key",
+        "aws_access_key_id": "aws_access_key_id"
       }
     },
     "https": {
@@ -28,7 +30,9 @@
       "applicationUrl": "https://localhost:7148;http://localhost:5098",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "sendgrid": "sendgrid"
+        "sendgrid": "sendgrid",
+        "aws_secret_access_key": "aws_secret_access_key",
+        "aws_access_key_id": "aws_access_key_id"
       }
     },
     "IIS Express": {
@@ -37,7 +41,9 @@
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "sendgrid": "sendgrid"
+        "sendgrid": "sendgrid",
+        "aws_secret_access_key": "aws_secret_access_key",
+        "aws_access_key_id": "aws_access_key_id"
       }
     }
   }
