@@ -208,7 +208,7 @@ namespace AvanzarBackEnd.Controllers
             catch (Exception ex) {
 
                 _logger.LogInformation($"purchase endpoint failed: {ex.Message}");
-                return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = $"ERROR DEVUELTO POR EL METODOS: {ex.Message}" });
             }
         }
 
