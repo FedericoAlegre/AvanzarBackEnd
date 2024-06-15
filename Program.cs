@@ -84,9 +84,10 @@ builder.Services.AddControllers().AddJsonOptions(opt =>
 
 // Leer las credenciales de AWS desde la configuración
 
-var accessKey = Environment.GetEnvironmentVariable("AWSAccessKey");
-var secretKeyAWS = Environment.GetEnvironmentVariable("AWSSecretKey");
-
+//var accessKey = Environment.GetEnvironmentVariable("AWSAccessKey");
+//var secretKeyAWS = Environment.GetEnvironmentVariable("AWSSecretKey");
+var accessKey = builder.Configuration["AWSAccessKey"];
+var secretKeyAWS = builder.Configuration["AWSSecretKey"];
 if (string.IsNullOrEmpty(accessKey) || string.IsNullOrEmpty(secretKeyAWS))
 {
     logger.LogError("AWS Access Key or Secret Key is missing");

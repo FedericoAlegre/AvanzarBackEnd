@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AvanzarBackEnd")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bff3b6d5f45b5c4dd9d2d70789325a67c3fd1328")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+66a2d834cc41f5585e88d452325e7287450b5367")]
 [assembly: System.Reflection.AssemblyProductAttribute("AvanzarBackEnd")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AvanzarBackEnd")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
