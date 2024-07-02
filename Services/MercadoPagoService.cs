@@ -26,7 +26,7 @@ namespace AvanzarBackEnd.Services
             MercadoPagoConfig.AccessToken = _configuration["MercadoPagoTestAccessToken"];
         }
 
-        public async Task<Preference> CreatePreferenceAsync(decimal amount, int quantity, string productName)
+        public async Task<Preference> CreatePreferenceAsync(decimal amount, string productName)
         {
             
             try
@@ -39,7 +39,7 @@ namespace AvanzarBackEnd.Services
                         new PreferenceItemRequest
                         {
                             Title = productName,
-                            Quantity = quantity,
+                            Quantity = 1,
                             CurrencyId = "ARS",
                             UnitPrice = amount,
                         }

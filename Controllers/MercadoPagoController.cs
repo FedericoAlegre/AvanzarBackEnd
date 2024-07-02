@@ -18,12 +18,12 @@ namespace AvanzarBackEnd.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreatePreference(decimal amount, int quantity, string productName)
+        public async Task<IActionResult> CreatePreference(decimal amount, string productName)
         {
             try
             {
-                if(amount<=0 || quantity <= 0 || productName is null) throw new Exception("All fields are required");
-                var preference = await _mercadoPagoService.CreatePreferenceAsync(amount, quantity, productName);
+                if(amount<=0 ||  productName is null) throw new Exception("All fields are required");
+                var preference = await _mercadoPagoService.CreatePreferenceAsync(amount, productName);
                 return Ok(preference);
             }
             catch (ApplicationException ex)
