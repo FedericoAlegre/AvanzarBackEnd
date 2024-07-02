@@ -120,6 +120,23 @@
           }
         }
       },
+      "mercadopago-sdk/2.3.8": {
+        "type": "package",
+        "dependencies": {
+          "Newtonsoft.Json": "13.0.1",
+          "System.Configuration.ConfigurationManager": "5.0.0"
+        },
+        "compile": {
+          "lib/net5.0/MercadoPago.dll": {
+            "related": ".pdb;.xml"
+          }
+        },
+        "runtime": {
+          "lib/net5.0/MercadoPago.dll": {
+            "related": ".pdb;.xml"
+          }
+        }
+      },
       "Microsoft.AspNetCore.Authentication.JwtBearer/8.0.6": {
         "type": "package",
         "dependencies": {
@@ -965,7 +982,7 @@
       "Microsoft.Win32.SystemEvents/6.0.0": {
         "type": "package",
         "compile": {
-          "lib/net6.0/_._": {
+          "lib/net6.0/Microsoft.Win32.SystemEvents.dll": {
             "related": ".xml"
           }
         },
@@ -1239,7 +1256,7 @@
           "System.Security.Permissions": "6.0.0"
         },
         "compile": {
-          "lib/net6.0/_._": {
+          "lib/net6.0/System.Configuration.ConfigurationManager.dll": {
             "related": ".xml"
           }
         },
@@ -1277,7 +1294,7 @@
           "Microsoft.Win32.SystemEvents": "6.0.0"
         },
         "compile": {
-          "lib/net6.0/_._": {
+          "lib/net6.0/System.Drawing.Common.dll": {
             "related": ".xml"
           }
         },
@@ -1537,7 +1554,7 @@
           "System.Windows.Extensions": "6.0.0"
         },
         "compile": {
-          "lib/net6.0/_._": {
+          "lib/net6.0/System.Security.Permissions.dll": {
             "related": ".xml"
           }
         },
@@ -1670,7 +1687,7 @@
           "System.Drawing.Common": "6.0.0"
         },
         "compile": {
-          "lib/net6.0/_._": {
+          "lib/net6.0/System.Windows.Extensions.dll": {
             "related": ".xml"
           }
         },
@@ -1857,6 +1874,26 @@
         "lib/netstandard2.0/Humanizer.dll",
         "lib/netstandard2.0/Humanizer.xml",
         "logo.png"
+      ]
+    },
+    "mercadopago-sdk/2.3.8": {
+      "sha512": "W41OcPd5ha0H0dwfYQHWTDM/445Uoac4LMpOzc2i9eZx0BoycTAqSFOvxWk90dYix2ZaVifcAPUCpESGXJDrqQ==",
+      "type": "package",
+      "path": "mercadopago-sdk/2.3.8",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net461/MercadoPago.dll",
+        "lib/net461/MercadoPago.pdb",
+        "lib/net461/MercadoPago.xml",
+        "lib/net5.0/MercadoPago.dll",
+        "lib/net5.0/MercadoPago.pdb",
+        "lib/net5.0/MercadoPago.xml",
+        "lib/netstandard2.0/MercadoPago.dll",
+        "lib/netstandard2.0/MercadoPago.pdb",
+        "lib/netstandard2.0/MercadoPago.xml",
+        "mercadopago-sdk.2.3.8.nupkg.sha512",
+        "mercadopago-sdk.nuspec"
       ]
     },
     "Microsoft.AspNetCore.Authentication.JwtBearer/8.0.6": {
@@ -4604,7 +4641,8 @@
       "Microsoft.Extensions.Configuration.EnvironmentVariables >= 5.0.0",
       "SendGrid >= 9.29.3",
       "Swashbuckle.AspNetCore >= 6.4.0",
-      "System.IdentityModel.Tokens.Jwt >= 7.6.0"
+      "System.IdentityModel.Tokens.Jwt >= 7.6.0",
+      "mercadopago-sdk >= 2.3.8"
     ]
   },
   "packageFolders": {
@@ -4693,6 +4731,10 @@
           "System.IdentityModel.Tokens.Jwt": {
             "target": "Package",
             "version": "[7.6.0, )"
+          },
+          "mercadopago-sdk": {
+            "target": "Package",
+            "version": "[2.3.8, )"
           }
         },
         "imports": [

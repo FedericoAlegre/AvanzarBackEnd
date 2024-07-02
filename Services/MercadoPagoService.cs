@@ -1,6 +1,10 @@
-﻿using MercadoPago.Client.Payment;
+﻿using MercadoPago.Client.CardToken;
+using MercadoPago.Client.Payment;
+using MercadoPago.Client.Preference;
 using MercadoPago.Config;
+using MercadoPago.Resource.CardToken;
 using MercadoPago.Resource.Payment;
+using MercadoPago.Resource.Preference;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
@@ -22,25 +26,31 @@ namespace AvanzarBackEnd.Services
             MercadoPagoConfig.AccessToken = _configuration["MercadoPagoTestAccessToken"];
         }
 
-        public async Task<Payment> CreatePaymentAsync(decimal amount, string paymentMethod, string description, string payerEmail)
+        public async Task<Preference> CreatePreferenceAsync(decimal amount, int quantity, string productName)
         {
+            
             try
             {
-                var paymentRequest = new PaymentCreateRequest
+                // Crea el objeto de request de la preference
+                var request = new PreferenceRequest
                 {
-                    
-                    TransactionAmount = amount,
-                    Description = description,
-                    PaymentMethodId = paymentMethod, // or another method
-                    Payer = new PaymentPayerRequest
+                    Items = new List<PreferenceItemRequest>
                     {
-                        Email = payerEmail // Example email
+                        new PreferenceItemRequest
+                        {
+                            Title = productName,
+                            Quantity = quantity,
+                            CurrencyId = "ARS",
+                            UnitPrice = amount,
+                        }
                     }
+                    
                 };
-
-                var client = new PaymentClient();
-                Payment payment = await client.CreateAsync(paymentRequest);
-                return payment;
+                
+                // Crea la preferencia usando el client
+                var client = new PreferenceClient();
+                Preference preference = await client.CreateAsync(request);
+                return preference;
             }
             catch (Exception ex)
             {
@@ -48,5 +58,7 @@ namespace AvanzarBackEnd.Services
                 throw new ApplicationException("An error occurred while processing the payment with MercadoPago.", ex);
             }
         }
+
+
     }
 }
