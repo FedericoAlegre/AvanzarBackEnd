@@ -188,7 +188,7 @@ namespace AvanzarBackEnd.Controllers
 
         [HttpPost("purchase")]
         [AllowAnonymous]
-        public async Task<IActionResult> PurchaseFile(string preferenceId, [FromForm] string email)
+        public async Task<IActionResult> PurchaseFile([FromForm]string preferenceId, [FromForm] string email)
         {
             try
             {
