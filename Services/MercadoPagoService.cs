@@ -35,6 +35,7 @@ namespace AvanzarBackEnd.Services
                 // Crea el objeto de request de la preference
                 var request = new PreferenceRequest
                 {
+                    AutoReturn = "approved",
                     BackUrls = new PreferenceBackUrlsRequest
                     {
                         Success = "http://localhost:3000/success"
@@ -42,12 +43,11 @@ namespace AvanzarBackEnd.Services
                     Items = new List<PreferenceItemRequest>
                     {
                         new PreferenceItemRequest
-                        {
+                        {                            
                             Title = productName,
                             Quantity = 1,
                             CurrencyId = "ARS",
-                            UnitPrice = amount,
-                            
+                            UnitPrice = amount,                             
                         }
                     }
                     
@@ -73,7 +73,6 @@ namespace AvanzarBackEnd.Services
                 var client = new PreferenceClient();
                 Preference preference = await client.GetAsync(preferenceId);
                 
-               // preference.ApiResponse.
                 return preference;
             }
             catch (Exception ex)

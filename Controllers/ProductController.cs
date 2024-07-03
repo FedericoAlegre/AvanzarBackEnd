@@ -10,6 +10,7 @@ using AvanzarBackEnd.Services;
 using SendGrid.Helpers.Mail;
 using System.Collections.Generic;
 using Amazon.S3.Model;
+using MercadoPago.Resource.Preference;
 
 namespace AvanzarBackEnd.Controllers
 {
@@ -185,14 +186,16 @@ namespace AvanzarBackEnd.Controllers
         }
 
 
-        [HttpPost("purchase/{id}")]
+        [HttpPost("purchase")]
         [AllowAnonymous]
-        public async Task<IActionResult> PurchaseFile(int id, [FromForm] string email)
+        public async Task<IActionResult> PurchaseFile(string preferenceId, [FromForm] string email)
         {
             try
             {
-                var preference = await _mercadoPagoService.GetPreferenceAsync(email);
-                var dbProduct = await this.AppDbContext.Products.FindAsync(id);
+                var preference = await _mercadoPagoService.GetPreferenceAsync(preferenceId);
+                if (preference == null) throw new Exception("preferenceId was null");
+                string productName = preference.Items.First().Title;
+                var dbProduct = await this.AppDbContext.Products.FirstOrDefaultAsync(x => x.Name!.Equals(productName));
                 if (dbProduct == null)
                     return NotFound();
 
@@ -204,7 +207,7 @@ namespace AvanzarBackEnd.Controllers
 
                 var message = "Attached is your purchased file.";
                 var mimeType = GetMimeType(dbProduct.DataUrl!);
-                await _emailService.SendEmailAsync(preference.Payer.Email, "Your Purchased File", message, fileData, dbProduct.DataUrl, mimeType);
+                await _emailService.SendEmailAsync(email, "Your Purchased File", message, fileData, dbProduct.DataUrl, mimeType);
                 _logger.LogInformation($"purchase endpoint ok: {message}");
 
                 return Ok(new { message = "Email sent successfully" });
