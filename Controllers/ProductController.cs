@@ -187,12 +187,11 @@ namespace AvanzarBackEnd.Controllers
 
         [HttpPost("purchase/{id}")]
         [AllowAnonymous]
-        public async Task<IActionResult> PurchaseFile(int id, [FromForm] string preferenceId)
+        public async Task<IActionResult> PurchaseFile(int id, [FromForm] string email)
         {
             try
             {
-                var preference = await _mercadoPagoService.GetPreferenceAsync(preferenceId);
-                //if(preference.)
+                var preference = await _mercadoPagoService.GetPreferenceAsync(email);
                 var dbProduct = await this.AppDbContext.Products.FindAsync(id);
                 if (dbProduct == null)
                     return NotFound();

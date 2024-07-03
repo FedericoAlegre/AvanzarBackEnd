@@ -2,6 +2,7 @@
 using MercadoPago.Client.Payment;
 using MercadoPago.Client.Preference;
 using MercadoPago.Config;
+using MercadoPago.Http;
 using MercadoPago.Resource.CardToken;
 using MercadoPago.Resource.Payment;
 using MercadoPago.Resource.Preference;
@@ -34,6 +35,10 @@ namespace AvanzarBackEnd.Services
                 // Crea el objeto de request de la preference
                 var request = new PreferenceRequest
                 {
+                    BackUrls = new PreferenceBackUrlsRequest
+                    {
+                        Success = "http://localhost:3000/success"
+                    }, 
                     Items = new List<PreferenceItemRequest>
                     {
                         new PreferenceItemRequest
@@ -42,6 +47,7 @@ namespace AvanzarBackEnd.Services
                             Quantity = 1,
                             CurrencyId = "ARS",
                             UnitPrice = amount,
+                            
                         }
                     }
                     

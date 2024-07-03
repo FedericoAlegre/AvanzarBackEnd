@@ -22,7 +22,7 @@ namespace AvanzarBackEnd.Controllers
         {
             try
             {
-                if(amount<=0 ||  productName is null) throw new Exception("All fields are required");
+                if(amount<=0 ||  productName is null ) throw new Exception("All fields are required");
                 var preference = await _mercadoPagoService.CreatePreferenceAsync(amount, productName);
                 return Ok(preference);
             }
