@@ -16,13 +16,14 @@ namespace AvanzarBackEnd.Controllers
     [Route("api/[controller]")]
     [Authorize]
     [ApiController]
-    public class ProductController(AppDbContext appDbContext, IConfiguration configuration, EmailService emailService, IAmazonS3 s3Client, ILogger<ProductController> logger) : ControllerBase
+    public class ProductController(AppDbContext appDbContext, IConfiguration configuration, EmailService emailService, IAmazonS3 s3Client, ILogger<ProductController> logger, MercadoPagoService mercadoPagoService) : ControllerBase
     {
         public AppDbContext AppDbContext { get; set; } = appDbContext;
         private readonly IAmazonS3 _s3Client = s3Client;
         private readonly string _bucketName = configuration["AWS:BucketName"]!;
         private readonly EmailService _emailService = emailService;
         private readonly ILogger<ProductController> _logger =  logger;
+        private readonly MercadoPagoService _mercadoPagoService = mercadoPagoService;
 
         [HttpGet]
         [AllowAnonymous]
@@ -186,10 +187,12 @@ namespace AvanzarBackEnd.Controllers
 
         [HttpPost("purchase/{id}")]
         [AllowAnonymous]
-        public async Task<IActionResult> PurchaseFile(int id, [FromForm] string email)
+        public async Task<IActionResult> PurchaseFile(int id, [FromForm] string preferenceId)
         {
             try
             {
+                var preference = await _mercadoPagoService.GetPreferenceAsync(preferenceId);
+                //if(preference.)
                 var dbProduct = await this.AppDbContext.Products.FindAsync(id);
                 if (dbProduct == null)
                     return NotFound();
@@ -198,9 +201,11 @@ namespace AvanzarBackEnd.Controllers
                 if (fileData == null)
                     return NotFound("File not found in S3");
 
+                
+
                 var message = "Attached is your purchased file.";
                 var mimeType = GetMimeType(dbProduct.DataUrl!);
-                await _emailService.SendEmailAsync(email, "Your Purchased File", message, fileData, dbProduct.DataUrl, mimeType);
+                await _emailService.SendEmailAsync(preference.Payer.Email, "Your Purchased File", message, fileData, dbProduct.DataUrl, mimeType);
                 _logger.LogInformation($"purchase endpoint ok: {message}");
 
                 return Ok(new { message = "Email sent successfully" });

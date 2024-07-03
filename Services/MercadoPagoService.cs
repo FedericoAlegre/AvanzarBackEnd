@@ -59,6 +59,23 @@ namespace AvanzarBackEnd.Services
             }
         }
 
+        public async Task<Preference> GetPreferenceAsync(string preferenceId)
+        {
+
+            try
+            {
+                var client = new PreferenceClient();
+                Preference preference = await client.GetAsync(preferenceId);
+                
+               // preference.ApiResponse.
+                return preference;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting preference with MercadoPago.");
+                throw new ApplicationException("An error occurred while getting the preference with MercadoPago.", ex);
+            }
+        }
 
     }
 }
