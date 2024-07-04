@@ -54,11 +54,13 @@ namespace AvanzarBackEnd.Controllers
                             }
                         }
                     },
-                    ApplicationContext = new ApplicationContext()
+                    /*ApplicationContext = new ApplicationContext()
                     {
-                        ReturnUrl = "http://localhost:3000/success",
-                        CancelUrl = "http://localhost:3000/"
-                    }
+                        //ReturnUrl = "http://localhost:3000/success",
+                        
+                        //CancelUrl = "http://localhost:3000/"
+                        
+                    }*/
                 
                 };
 
