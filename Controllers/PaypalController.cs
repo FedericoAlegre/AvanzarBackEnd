@@ -54,13 +54,13 @@ namespace AvanzarBackEnd.Controllers
                             }
                         }
                     },
-                    /*ApplicationContext = new ApplicationContext()
+                    ApplicationContext = new ApplicationContext()
                     {
-                        //ReturnUrl = "http://localhost:3000/success",
+                        ReturnUrl = "http://localhost:3000/success",
                         
                         //CancelUrl = "http://localhost:3000/"
                         
-                    }*/
+                    }
                 
                 };
 
@@ -71,12 +71,12 @@ namespace AvanzarBackEnd.Controllers
             
                 var response = await _payPalClient.Execute(request);
                 var result = response.Result<Order>();
-
+                
                 return Ok(new { id = result.Id, status = result.Status });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, $"{ex.Message} error::: {_payPalClient.ToString()}");
             }
         }
     }
