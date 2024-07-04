@@ -8,7 +8,7 @@ namespace AvanzarBackEnd.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PaypalController(PayPalHttpClient payPalClient) : ControllerBase
+    public class PaypalController(PayPalHttpClient payPalClient, IConfiguration configuration) : ControllerBase
     {
         private readonly PayPalHttpClient _payPalClient = payPalClient;
 
@@ -76,7 +76,7 @@ namespace AvanzarBackEnd.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"{ex.Message} error::: {_payPalClient.ToString()}");
+                return StatusCode(500, $"{ex.Message} error::: {configuration["PayPalSecretTest"]}");
             }
         }
     }
