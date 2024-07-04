@@ -14,57 +14,59 @@ namespace AvanzarBackEnd.Controllers
 
 
         [HttpPost("create-paypal-payment")]
-        public async Task<IActionResult> CreatePayPalPayment([FromForm]double unitPrice,[FromForm] string productName )
+        public async Task<IActionResult> CreatePayPalPayment(decimal unitPrice, string productName )
         {
-            var orderRequest = new OrderRequest()
-            {                
-                Intent = "CAPTURE",
-                PurchaseUnits = new List<PurchaseUnitRequest>()
-                {
-                    new PurchaseUnitRequest()
+            try
+            {
+                unitPrice = unitPrice / 1000;
+                var orderRequest = new OrderRequest()
+                {                
+                    Intent = "CAPTURE",
+                    PurchaseUnits = new List<PurchaseUnitRequest>()
                     {
-                        Items = new List<Item>
+                        new PurchaseUnitRequest()
                         {
-                            new Item
+                            Items = new List<Item>
                             {
-                                Quantity = "1",
-                                UnitAmount = new Money
+                                new Item
                                 {
-                                    CurrencyCode = "USD",
-                                    Value = unitPrice.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)
-                                },                                
-                                Name = productName
-                            }
-                        },
-                        Amount = new AmountWithBreakdown()
-                        {
-                            CurrencyCode = "USD",
-                            Value = unitPrice.ToString("F2", System.Globalization.CultureInfo.InvariantCulture),
-                            Breakdown = new AmountBreakdown()
+                                    Quantity = "1",
+                                    UnitAmount = new Money
+                                    {
+                                        CurrencyCode = "USD",
+                                        Value = unitPrice.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)
+                                    },                                
+                                    Name = productName
+                                }
+                            },
+                            Amount = new AmountWithBreakdown()
                             {
-                                ItemTotal = new Money
+                                CurrencyCode = "USD",
+                                Value = unitPrice.ToString("F2", System.Globalization.CultureInfo.InvariantCulture),
+                                Breakdown = new AmountBreakdown()
                                 {
-                                    CurrencyCode = "USD",
-                                    Value = unitPrice.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)
+                                    ItemTotal = new Money
+                                    {
+                                        CurrencyCode = "USD",
+                                        Value = unitPrice.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)
+                                    }
                                 }
                             }
                         }
+                    },
+                    ApplicationContext = new ApplicationContext()
+                    {
+                        ReturnUrl = "http://localhost:3000/success",
+                        CancelUrl = "http://localhost:3000/"
                     }
-                },
-                ApplicationContext = new ApplicationContext()
-                {
-                    ReturnUrl = "http://localhost:3000/success",
-                    CancelUrl = "https://your-cancel-url"
-                }
                 
-            };
+                };
 
-            var request = new OrdersCreateRequest();
-            request.Headers.Add("prefer", "return=representation");
-            request.RequestBody(orderRequest);
+                var request = new OrdersCreateRequest();
+                request.Headers.Add("prefer", "return=representation");
+                request.RequestBody(orderRequest);
 
-            try
-            {
+            
                 var response = await _payPalClient.Execute(request);
                 var result = response.Result<Order>();
 
