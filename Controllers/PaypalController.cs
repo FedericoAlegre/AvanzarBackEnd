@@ -74,9 +74,9 @@ namespace AvanzarBackEnd.Controllers
 
                 return Ok(new { id = result.Id, status = result.Status });
             }
-            catch (HttpException ex)
+            catch (Exception ex)
             {
-                return StatusCode((int)ex.StatusCode, ex.Message);
+                return StatusCode(500, ex.Message);
             }
         }
     }
