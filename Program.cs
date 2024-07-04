@@ -13,6 +13,7 @@ using Amazon.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using Amazon.Extensions.NETCore.Setup;
 using Amazon;
+using PayPalCheckoutSdk.Core;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -121,6 +122,23 @@ else
 
 if (sendgrid != null) builder.Services.AddSingleton<ISendGridClient>(new SendGridClient(sendgrid));
 builder.Services.AddScoped<EmailService>();
+
+// Configura PayPal
+builder.Services.AddSingleton(serviceProvider =>
+{
+    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+    var clientId = configuration["PayPal:ClientId"];
+    var clientSecret = configuration["PayPalSecretTest"];
+    var environment = configuration["PayPal:Environment"];
+
+    PayPalEnvironment payPalEnvironment = environment switch
+    {
+        "live" => new LiveEnvironment(clientId, clientSecret),
+        _ => new SandboxEnvironment(clientId, clientSecret)
+    };
+
+    return new PayPalHttpClient(payPalEnvironment);
+});
 
 var app = builder.Build();
 

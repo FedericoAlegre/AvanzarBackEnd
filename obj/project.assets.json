@@ -107,6 +107,15 @@
           }
         }
       },
+      "BraintreeHttp-Dotnet/0.3.0": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/BraintreeHttp-Dotnet.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/BraintreeHttp-Dotnet.dll": {}
+        }
+      },
       "Humanizer.Core/2.14.1": {
         "type": "package",
         "compile": {
@@ -1026,6 +1035,18 @@
           }
         }
       },
+      "PayPalCheckoutSdk/1.0.1": {
+        "type": "package",
+        "dependencies": {
+          "BraintreeHttp-Dotnet": "0.3.0"
+        },
+        "compile": {
+          "lib/netstandard2.0/PayPalCheckoutSdk.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/PayPalCheckoutSdk.dll": {}
+        }
+      },
       "SendGrid/9.29.3": {
         "type": "package",
         "dependencies": {
@@ -1856,6 +1877,18 @@
         "lib/netstandard2.1/BCrypt.Net-Next.dll",
         "lib/netstandard2.1/BCrypt.Net-Next.xml",
         "readme.md"
+      ]
+    },
+    "BraintreeHttp-Dotnet/0.3.0": {
+      "sha512": "ARHcstlJ2uRxqJVAxhJ7PJbzsDD9us+docpKHuay6psUVpQJo4cH0negfo8rv/iEakGhx0Rxgp/HUu6ZLa+lsA==",
+      "type": "package",
+      "path": "braintreehttp-dotnet/0.3.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "braintreehttp-dotnet.0.3.0.nupkg.sha512",
+        "braintreehttp-dotnet.nuspec",
+        "lib/netstandard2.0/BraintreeHttp-Dotnet.dll"
       ]
     },
     "Humanizer.Core/2.14.1": {
@@ -3494,6 +3527,18 @@
         "packageIcon.png"
       ]
     },
+    "PayPalCheckoutSdk/1.0.1": {
+      "sha512": "5QAQNWWcG+cXSPWrfBOGOd6vNtkSlx2gGwzTAEkXBW0mrE2ubbsJEnV/GLiXSTgbe2M9oBbzM9NFv5bWqipDmg==",
+      "type": "package",
+      "path": "paypalcheckoutsdk/1.0.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/netstandard2.0/PayPalCheckoutSdk.dll",
+        "paypalcheckoutsdk.1.0.1.nupkg.sha512",
+        "paypalcheckoutsdk.nuspec"
+      ]
+    },
     "SendGrid/9.29.3": {
       "sha512": "nb/zHePecN9U4/Bmct+O+lpgK994JklbCCNMIgGPOone/DngjQoMCHeTvkl+m0Nglvm0dqMEshmvB4fO8eF3dA==",
       "type": "package",
@@ -4639,6 +4684,7 @@
       "Microsoft.EntityFrameworkCore.SqlServer >= 8.0.6",
       "Microsoft.EntityFrameworkCore.Tools >= 8.0.6",
       "Microsoft.Extensions.Configuration.EnvironmentVariables >= 5.0.0",
+      "PayPalCheckoutSdk >= 1.0.1",
       "SendGrid >= 9.29.3",
       "Swashbuckle.AspNetCore >= 6.4.0",
       "System.IdentityModel.Tokens.Jwt >= 7.6.0",
@@ -4719,6 +4765,10 @@
           "Microsoft.Extensions.Configuration.EnvironmentVariables": {
             "target": "Package",
             "version": "[5.0.0, )"
+          },
+          "PayPalCheckoutSdk": {
+            "target": "Package",
+            "version": "[1.0.1, )"
           },
           "SendGrid": {
             "target": "Package",

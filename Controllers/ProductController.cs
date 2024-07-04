@@ -11,13 +11,15 @@ using SendGrid.Helpers.Mail;
 using System.Collections.Generic;
 using Amazon.S3.Model;
 using MercadoPago.Resource.Preference;
+using PayPalCheckoutSdk.Orders;
+using PayPalCheckoutSdk.Core;
 
 namespace AvanzarBackEnd.Controllers
 {
     [Route("api/[controller]")]
     [Authorize]
     [ApiController]
-    public class ProductController(AppDbContext appDbContext, IConfiguration configuration, EmailService emailService, IAmazonS3 s3Client, ILogger<ProductController> logger, MercadoPagoService mercadoPagoService) : ControllerBase
+    public class ProductController(AppDbContext appDbContext, IConfiguration configuration, EmailService emailService, IAmazonS3 s3Client, ILogger<ProductController> logger, MercadoPagoService mercadoPagoService, PayPalHttpClient payPalClient) : ControllerBase
     {
         public AppDbContext AppDbContext { get; set; } = appDbContext;
         private readonly IAmazonS3 _s3Client = s3Client;
@@ -25,6 +27,7 @@ namespace AvanzarBackEnd.Controllers
         private readonly EmailService _emailService = emailService;
         private readonly ILogger<ProductController> _logger =  logger;
         private readonly MercadoPagoService _mercadoPagoService = mercadoPagoService;
+        private readonly PayPalHttpClient _payPalClient = payPalClient;
 
         [HttpGet]
         [AllowAnonymous]
@@ -185,16 +188,37 @@ namespace AvanzarBackEnd.Controllers
             }
         }
 
+        [HttpPost("paypal-purchase")]
+        [AllowAnonymous]
+        public async Task<IActionResult> PurchaseFileWithPaypal([FromForm] string orderId, [FromForm] string email)
+        {
+        
+            var request = new OrdersCaptureRequest(orderId);
+            request.RequestBody(new OrderActionRequest());// Ejecuta la solicitud de captura de la orden
+            var response = await _payPalClient.Execute(request);
+
+                // Obtiene el resultado de la respuesta, que contiene los detalles de la orden capturada
+            var result = response.Result<Order>();
+            string productName = result.PurchaseUnits!.FirstOrDefault()!.Items!.FirstOrDefault()!.Name!;
+
+            return await InternPurchaseFile(productName, email);
+        }
+
 
         [HttpPost("purchase")]
         [AllowAnonymous]
         public async Task<IActionResult> PurchaseFile([FromForm]string preferenceId, [FromForm] string email)
+        {          
+            var preference = await _mercadoPagoService.GetPreferenceAsync(preferenceId);
+            if (preference == null) throw new Exception("preferenceId was null");
+            string productName = preference.Items.First().Title;
+            return await InternPurchaseFile(productName, email);
+        }
+
+        private async Task<IActionResult> InternPurchaseFile(string productName, string email)
         {
             try
             {
-                var preference = await _mercadoPagoService.GetPreferenceAsync(preferenceId);
-                if (preference == null) throw new Exception("preferenceId was null");
-                string productName = preference.Items.First().Title;
                 var dbProduct = await this.AppDbContext.Products.FirstOrDefaultAsync(x => x.Name!.Equals(productName));
                 if (dbProduct == null)
                     return NotFound();
@@ -203,7 +227,7 @@ namespace AvanzarBackEnd.Controllers
                 if (fileData == null)
                     return NotFound("File not found in S3");
 
-                
+
 
                 var message = "Attached is your purchased file.";
                 var mimeType = GetMimeType(dbProduct.DataUrl!);
@@ -212,7 +236,8 @@ namespace AvanzarBackEnd.Controllers
 
                 return Ok(new { message = "Email sent successfully" });
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
 
                 _logger.LogInformation($"purchase endpoint failed: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = $"ERROR DEVUELTO POR EL METODOS: {ex.Message}" });

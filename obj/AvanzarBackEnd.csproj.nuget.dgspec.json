@@ -76,6 +76,10 @@
               "target": "Package",
               "version": "[5.0.0, )"
             },
+            "PayPalCheckoutSdk": {
+              "target": "Package",
+              "version": "[1.0.1, )"
+            },
             "SendGrid": {
               "target": "Package",
               "version": "[9.29.3, )"
