@@ -128,7 +128,7 @@ builder.Services.AddSingleton(serviceProvider =>
 {
     var configuration = serviceProvider.GetRequiredService<IConfiguration>();
     var clientId = configuration["PayPal:ClientId"];
-    var clientSecret = configuration["PayPalSecretTest"];
+    var clientSecret = builder.Configuration["PayPalSecretTest"];
     var environment = configuration["PayPal:Environment"];
 
     PayPalEnvironment payPalEnvironment = environment switch
