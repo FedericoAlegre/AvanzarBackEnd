@@ -13,6 +13,7 @@ using Amazon.S3.Model;
 using MercadoPago.Resource.Preference;
 using PayPalCheckoutSdk.Orders;
 using PayPalCheckoutSdk.Core;
+using Microsoft.IdentityModel.Tokens;
 
 namespace AvanzarBackEnd.Controllers
 {
@@ -192,27 +193,42 @@ namespace AvanzarBackEnd.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> PurchaseFileWithPaypal([FromForm] string orderId)
         {
-        
-            var request = new OrdersCaptureRequest(orderId);
-            request.RequestBody(new OrderActionRequest());// Ejecuta la solicitud de captura de la orden
-            var response = await _payPalClient.Execute(request);
+            try
+            {
+
+                var request = new OrdersCaptureRequest(orderId);
+                request.RequestBody(new OrderActionRequest());// Ejecuta la solicitud de captura de la orden
+                var response = await _payPalClient.Execute(request);
 
                 // Obtiene el resultado de la respuesta, que contiene los detalles de la orden capturada
-            var result = response.Result<Order>();
-            string productName = result.PurchaseUnits!.FirstOrDefault()!.Items!.FirstOrDefault()!.Name!;
-            string email = result.Payer.EmailAddress;
-            return await InternPurchaseFile(productName, email);
+                var result = response.Result<Order>();
+                string productName = result.PurchaseUnits!.FirstOrDefault()!.Items!.FirstOrDefault()!.Name!;
+                if (result.Payer is null || result.Payer.EmailAddress.IsNullOrEmpty()) throw new Exception("Email in order was null");
+                string email = result.Payer!.EmailAddress!;
+                return await InternPurchaseFile(productName, email);
+            }
+            catch (Exception ex) {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = $"ERROR DEVUELTO POR EL METODO paypal purchase: {ex.Message}" });
+
+            }
         }
 
 
         [HttpPost("purchase")]
         [AllowAnonymous]
         public async Task<IActionResult> PurchaseFile([FromForm]string preferenceId, [FromForm] string email)
-        {          
-            var preference = await _mercadoPagoService.GetPreferenceAsync(preferenceId);
-            if (preference == null) throw new Exception("preferenceId was null");
-            string productName = preference.Items.First().Title;
-            return await InternPurchaseFile(productName, email);
+        {
+            try
+            {
+                var preference = await _mercadoPagoService.GetPreferenceAsync(preferenceId);
+                if (preference == null) throw new Exception("preferenceId was null");
+                string productName = preference.Items.First().Title;
+                return await InternPurchaseFile(productName, email);
+            }
+            catch (Exception ex) {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = $"ERROR DEVUELTO POR EL METODO purchase: {ex.Message}" });
+
+            }
         }
 
         private async Task<IActionResult> InternPurchaseFile(string productName, string email)
