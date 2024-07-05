@@ -26,7 +26,7 @@ namespace AvanzarBackEnd.Controllers
         private readonly IAmazonS3 _s3Client = s3Client;
         private readonly string _bucketName = configuration["AWS:BucketName"]!;
         private readonly EmailService _emailService = emailService;
-        private readonly ILogger<ProductController> _logger =  logger;
+        private readonly ILogger<ProductController> _logger = logger;
         private readonly MercadoPagoService _mercadoPagoService = mercadoPagoService;
         private readonly PayPalHttpClient _payPalClient = payPalClient;
 
@@ -68,7 +68,7 @@ namespace AvanzarBackEnd.Controllers
                 if (dbProduct == null) return StatusCode(StatusCodes.Status404NotFound, new { message = $"Product with id: {id} does not exists ", response = dbProduct });
                 if (!isAdmin)
                 {
-                    dbProduct.DataUrl = "";                    
+                    dbProduct.DataUrl = "";
                 }
                 return Ok(dbProduct);
             }
@@ -84,13 +84,13 @@ namespace AvanzarBackEnd.Controllers
 
             try
             {
-                if (model != null )
+                if (model != null)
                 {
-                    if ( model!.Name == null || model.Price == 0 || model.Description == null || model.DataUrl == null || model.ImageUrl == null ) return StatusCode(StatusCodes.Status500InternalServerError, new { message = "All fields are required" });
+                    if (model!.Name == null || model.Price == 0 || model.Description == null || model.DataUrl == null || model.ImageUrl == null) return StatusCode(StatusCodes.Status500InternalServerError, new { message = "All fields are required" });
                     model.isActive = true;
                     AppDbContext.Products.Add(model);
                     await AppDbContext.SaveChangesAsync();
-                    
+
                     return StatusCode(StatusCodes.Status200OK, new { message = "OK" });
                 }
                 else
@@ -182,7 +182,7 @@ namespace AvanzarBackEnd.Controllers
                     BucketName = _bucketName,
                 };
 
-                var fileTransferUtility = new TransferUtility(_s3Client);                
+                var fileTransferUtility = new TransferUtility(_s3Client);
                 await fileTransferUtility.UploadAsync(uploadRequest);
 
                 return fileName;
@@ -191,21 +191,12 @@ namespace AvanzarBackEnd.Controllers
 
         [HttpPost("paypal-purchase")]
         [AllowAnonymous]
-        public async Task<IActionResult> PurchaseFileWithPaypal([FromForm] string orderId)
+        public async Task<IActionResult> PurchaseFileWithPaypal([FromForm] string name, [FromForm] string email)
         {
             try
             {
-
-                var request = new OrdersCaptureRequest(orderId);
-                request.RequestBody(new OrderActionRequest());// Ejecuta la solicitud de captura de la orden
-                var response = await _payPalClient.Execute(request);
-
-                // Obtiene el resultado de la respuesta, que contiene los detalles de la orden capturada
-                var result = response.Result<Order>();
-                string productName = result.PurchaseUnits!.FirstOrDefault()!.Items!.FirstOrDefault()!.Name!;
-                if (result.Payer is null || result.Payer.EmailAddress.IsNullOrEmpty()) throw new Exception("Email in order was null");
-                string email = result.Payer!.EmailAddress!;
-                return await InternPurchaseFile(productName, email);
+                if (email.IsNullOrEmpty() || name.IsNullOrEmpty()) throw new Exception($"Email or ProductName in order were null. Email = {email}, Product Name = {name}");
+                return await InternPurchaseFile(name, email);
             }
             catch (Exception ex) {
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = $"ERROR DEVUELTO POR EL METODO paypal purchase: {ex.Message}" });
