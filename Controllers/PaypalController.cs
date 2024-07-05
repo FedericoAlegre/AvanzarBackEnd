@@ -56,7 +56,7 @@ namespace AvanzarBackEnd.Controllers
                     },
                     ApplicationContext = new ApplicationContext()
                     {
-                        ReturnUrl = "http://localhost:3000/success",
+                        //ReturnUrl = "http://localhost:3000/success",
                         
                         //CancelUrl = "http://localhost:3000/"
                         
