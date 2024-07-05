@@ -190,7 +190,7 @@ namespace AvanzarBackEnd.Controllers
 
         [HttpPost("paypal-purchase")]
         [AllowAnonymous]
-        public async Task<IActionResult> PurchaseFileWithPaypal([FromForm] string orderId, [FromForm] string email)
+        public async Task<IActionResult> PurchaseFileWithPaypal([FromForm] string orderId)
         {
         
             var request = new OrdersCaptureRequest(orderId);
@@ -200,7 +200,7 @@ namespace AvanzarBackEnd.Controllers
                 // Obtiene el resultado de la respuesta, que contiene los detalles de la orden capturada
             var result = response.Result<Order>();
             string productName = result.PurchaseUnits!.FirstOrDefault()!.Items!.FirstOrDefault()!.Name!;
-
+            string email = result.Payer.EmailAddress;
             return await InternPurchaseFile(productName, email);
         }
 
