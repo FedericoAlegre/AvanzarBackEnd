@@ -38,13 +38,18 @@ namespace AvanzarBackEnd.Controllers
 
             try
             {
-                list = await this.AppDbContext.Products.ToListAsync();
+                
                 if (!isAdmin)
                 {
+                    list = await this.AppDbContext.Products.Where(p => p.isActive == !isAdmin).ToListAsync();
                     foreach (Product product in list)
                     {
                         product.DataUrl = "";
                     }
+                }
+                else
+                {
+                    list = await this.AppDbContext.Products.ToListAsync();
                 }
 
                 return Ok(list);

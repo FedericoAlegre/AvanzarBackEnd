@@ -38,7 +38,7 @@ namespace AvanzarBackEnd.Services
                     AutoReturn = "approved",
                     BackUrls = new PreferenceBackUrlsRequest
                     {
-                        Success = "http://localhost:3000/success"
+                        Success = "https://avanzar-terapias-del-bienestar.vercel.app/success"
                     }, 
                     Items = new List<PreferenceItemRequest>
                     {
